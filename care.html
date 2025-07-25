@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareConnect - Connecting Hearts, Changing Lives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #10b981 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .community-card:hover .community-overlay {
+            opacity: 1;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Welcome Back</h2>
+                <button onclick="toggleModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="loginPassword" class="block text-gray-700 mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">Login</button>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-gray-600">Don't have an account? <button onclick="toggleModal('signupModal')" class="text-blue-600 font-medium">Sign up</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Join CareConnect</h2>
+                <button onclick="toggleModal('signupModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="signupForm">
+                <div class="mb-4">
+                    <label for="signupName" class="block text-gray-700 mb-2">Full Name</label>
+                    <input type="text" id="signupName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="signupEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="signupEmail" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="signupPassword" class="block text-gray-700 mb-2">Password</label>
+                    <input type="password" id="signupPassword" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="signupRole" class="block text-gray-700 mb-2">I want to join as</label>
+                    <select id="signupRole" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="volunteer">Volunteer</option>
+                        <option value="donor">Donor</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">Create Account</button>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-gray-600">Already have an account? <button onclick="toggleModal('loginModal')" class="text-blue-600 font-medium">Login</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Make a Donation</h2>
+                <button onclick="toggleModal('paymentModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="paymentForm">
+                <div class="mb-4">
+                    <label for="donationAmount" class="block text-gray-700 mb-2">Amount (USD)</label>
+                    <input type="number" id="donationAmount" min="1" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="donationNGO" class="block text-gray-700 mb-2">Select NGO</label>
+                    <select id="donationNGO" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="ngo1">Hope Foundation</option>
+                        <option value="ngo2">Green Earth</option>
+                        <option value="ngo3">Education for All</option>
+                        <option value="ngo4">Health First</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="cardNumber" class="block text-gray-700 mb-2">Card Number</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="expiryDate" class="block text-gray-700 mb-2">Expiry Date</label>
+                        <input type="text" id="expiryDate" placeholder="MM/YY" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="cvv" class="block text-gray-700 mb-2">CVV</label>
+                        <input type="text" id="cvv" placeholder="123" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">Donate Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Creation Modal -->
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Create a Post</h2>
+                <button onclick="toggleModal('postModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="postForm">
+                <div class="mb-4">
+                    <label for="postTitle" class="block text-gray-700 mb-2">Title</label>
+                    <input type="text" id="postTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="postContent" class="block text-gray-700 mb-2">Content</label>
+                    <textarea id="postContent" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="postType" class="block text-gray-700 mb-2">Post Type</label>
+                    <select id="postType" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="blog">Blog</option>
+                        <option value="photo">Photo</option>
+                        <option value="video">Video</option>
+                    </select>
+                </div>
+                <div class="mb-4" id="mediaUploadContainer">
+                    <label for="postMedia" class="block text-gray-700 mb-2">Upload Media</label>
+                    <input type="file" id="postMedia" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="postCommunity" class="block text-gray-700 mb-2">Select Community</label>
+                    <select id="postCommunity" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="community1">Environmental Activists</option>
+                        <option value="community2">Education Volunteers</option>
+                        <option value="community3">Healthcare Workers</option>
+                        <option value="community4">Animal Welfare</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">Post to Community</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Edit Profile</h2>
+                <button onclick="toggleModal('profileEditModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="profileEditForm">
+                <div class="mb-4">
+                    <label for="editName" class="block text-gray-700 mb-2">Full Name</label>
+                    <input type="text" id="editName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="John Doe" required>
+                </div>
+                <div class="mb-4">
+                    <label for="editEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="editEmail" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="john@example.com" required>
+                </div>
+                <div class="mb-4">
+                    <label for="editBio" class="block text-gray-700 mb-2">Bio</label>
+                    <textarea id="editBio" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">Passionate about making a difference in the world through volunteering and donations.</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="editSkills" class="block text-gray-700 mb-2">Skills</label>
+                    <input type="text" id="editSkills" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="Teaching, Fundraising, Event Planning">
+                </div>
+                <div class="mb-4">
+                    <label for="editAvatar" class="block text-gray-700 mb-2">Profile Picture</label>
+                    <input type="file" id="editAvatar" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg font-semibold hover:opacity-90 transition">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-hands-helping text-3xl text-blue-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">CareConnect</span>
+                    </div>
+                </div>
+                <div class="hidden md:ml-6 md:flex md:items-center md:space-x-8">
+                    <a href="#" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>
+                    <a href="#projects" class="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">Projects</a>
+                    <a href="#communities" class="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">Communities</a>
+                    <a href="#dashboard" class="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">Dashboard</a>
+                    <button onclick="toggleModal('paymentModal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">Donate Now</button>
+                    <div class="relative">
+                        <button id="profileDropdownBtn" class="flex items-center space-x-2 focus:outline-none">
+                            <img class="h-8 w-8 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+                            <span class="text-gray-700 text-sm font-medium">John</span>
+                        </button>
+                        <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="#settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="gradient-bg text-white">
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                    Connect. Care. Change Lives.
+                </h1>
+                <p class="mt-6 max-w-2xl mx-auto text-xl">
+                    Join our community of volunteers and donors to make a real difference in the world. Together, we can create lasting impact.
+                </p>
+                <div class="mt-10 flex justify-center space-x-4">
+                    <button onclick="toggleModal('signupModal')" class="bg-white text-blue-600 px-8 py-3 rounded-md text-lg font-semibold hover:bg-gray-100 transition">
+                        Get Started
+                    </button>
+                    <button onclick="toggleModal('loginModal')" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-white hover:text-blue-600 transition">
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="bg-gray-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-blue-600 text-4xl mb-2">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900">10,000+</h3>
+                    <p class="mt-2 text-gray-600">Active Volunteers</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-green-600 text-4xl mb-2">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900">$5M+</h3>
+                    <p class="mt-2 text-gray-600">Donations Raised</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-purple-600 text-4xl mb-2">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900">50+</h3>
+                    <p class="mt-2 text-gray-600">Communities Worldwide</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Section -->
+    <div id="projects" class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    Featured Projects
+                </h2>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                    Discover meaningful projects from NGOs around the world that need your support.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project Card 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Project">
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Education</span>
+                            <span class="ml-auto text-sm text-gray-500">3 days left</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Build a School in Kenya</h3>
+                        <p class="text-gray-600 mb-4">Help us construct a primary school for 200 children in rural Kenya to provide quality education.</p>
+                        <div class="mb-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-500 mt-1">
+                                <span>$32,500 raised</span>
+                                <span>of $50,000</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button class="text-blue-600 hover:text-blue-800 font-medium">Learn More</button>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">Donate</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Project">
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Environment</span>
+                            <span class="ml-auto text-sm text-gray-500">Ongoing</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Plant 10,000 Trees</h3>
+                        <p class="text-gray-600 mb-4">Join our initiative to plant trees in deforested areas of the Amazon rainforest and combat climate change.</p>
+                        <div class="mb-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-600 h-2.5 rounded-full" style="width: 80%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-500 mt-1">
+                                <span>$80,000 raised</span>
+                                <span>of $100,000</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button class="text-green-600 hover:text-green-800 font-medium">Learn More</button>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Volunteer</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
+                    <img class="w-full h-48 object-cover" src="https://images.unsplash.com/photo-1576765974257-b414b9ea0051?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Project">
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded">Healthcare</span>
+                            <span class="ml-auto text-sm text-gray-500">Urgent</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">COVID-19 Relief Fund</h3>
+                        <p class="text-gray-600 mb-4">Provide medical supplies and vaccines to underserved communities affected by the pandemic.</p>
+                        <div class="mb-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-purple-600 h-2.5 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-500 mt-1">
+                                <span>$22,500 raised</span>
+                                <span>of $50,000</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button class="text-purple-600 hover:text-purple-800 font-medium">Learn More</button>
+                            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">Donate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white gradient-bg hover:opacity-90">
+                    View All Projects
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communities Section -->
+    <div id="communities" class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    Join Our Communities
+                </h2>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                    Connect with like-minded individuals, share experiences, and collaborate on meaningful initiatives.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Community Card 1 -->
+                <div class="community-card relative bg-white rounded-lg shadow-md overflow-hidden h-64">
+                    <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Community">
+                    <div class="community-overlay absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center opacity-0 transition duration-300">
+                        <h3 class="text-xl font-bold text-white mb-2">Environmental Activists</h3>
+                        <p class="text-white text-center px-4 mb-4">Join our fight against climate change and environmental degradation.</p>
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">Join Community</button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                        <h3 class="text-lg font-bold text-white">Environmental Activists</h3>
+                        <p class="text-white text-sm">2,345 members</p>
+                    </div>
+                </div>
+                
+                <!-- Community Card 2 -->
+                <div class="community-card relative bg-white rounded-lg shadow-md overflow-hidden h-64">
+                    <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Community">
+                    <div class="community-overlay absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center opacity-0 transition duration-300">
+                        <h3 class="text-xl font-bold text-white mb-2">Education Volunteers</h3>
+                        <p class="text-white text-center px-4 mb-4">Help bridge the education gap for underprivileged children worldwide.</p>
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">Join Community</button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                        <h3 class="text-lg font-bold text-white">Education Volunteers</h3>
+                        <p class="text-white text-sm">1,876 members</p>
+                    </div>
+                </div>
+                
+                <!-- Community Card 3 -->
+                <div class="community-card relative bg-white rounded-lg shadow-md overflow-hidden h-64">
+                    <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Community">
+                    <div class="community-overlay absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center opacity-0 transition duration-300">
+                        <h3 class="text-xl font-bold text-white mb-2">Healthcare Workers</h3>
+                        <p class="text-white text-center px-4 mb-4">Improve healthcare access and quality in underserved communities.</p>
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">Join Community</button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                        <h3 class="text-lg font-bold text-white">Healthcare Workers</h3>
+                        <p class="text-white text-sm">1,432 members</p>
+                    </div>
+                </div>
+                
+                <!-- Community Card 4 -->
+                <div class="community-card relative bg-white rounded-lg shadow-md overflow-hidden h-64">
+                    <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1557053910-9d11b36a7234?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Community">
+                    <div class="community-overlay absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center opacity-0 transition duration-300">
+                        <h3 class="text-xl font-bold text-white mb-2">Animal Welfare</h3>
+                        <p class="text-white text-center px-4 mb-4">Protect and care for animals in need around the world.</p>
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-md font-medium">Join Community</button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                        <h3 class="text-lg font-bold text-white">Animal Welfare</h3>
+                        <p class="text-white text-sm">987 members</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <button onclick="toggleModal('postModal')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white gradient-bg hover:opacity-90">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create a Post
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    Your Dashboard
+                </h2>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                    Track your impact, manage your activities, and stay connected with your communities.
+                </p>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg shadow-md p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Impact Points -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-medal text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Impact Points</h3>
+                                <p class="text-2xl font-bold text-gray-900">1,245</p>
+                                <p class="text-sm text-gray-500">Earned through volunteering and donations</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm text-gray-500 mb-1">
+                                <span>Level 5</span>
+                                <span>Next: 1,500 pts</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 83%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Events -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-calendar-alt text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Events</h3>
+                                <p class="text-2xl font-bold text-gray-900">3</p>
+                                <p class="text-sm text-gray-500">Events you've registered for</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="#" class="text-sm font-medium text-green-600 hover:text-green-700">View all events</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Donations -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-donate text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Total Donations</h3>
+                                <p class="text-2xl font-bold text-gray-900">$2,450</p>
+                                <p class="text-sm text-gray-500">Contributed to various causes</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button onclick="toggleModal('paymentModal')" class="text-sm font-medium text-purple-600 hover:text-purple-700">Make a donation</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Tabs -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8">
+                            <button onclick="switchTab('recent')" class="tab-button border-b-2 border-blue-500 text-blue-600 px-1 py-4 text-sm font-medium">Recent Activity</button>
+                            <button onclick="switchTab('volunteer')" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium">Volunteer Work</button>
+                            <button onclick="switchTab('donations')" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium">Donations</button>
+                            <button onclick="switchTab('communities')" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-1 py-4 text-sm font-medium">Communities</button>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Tab Content -->
+                <div id="recent" class="tab-content active">
+                    <div class="space-y-4">
+                        <!-- Activity Item 1 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-hand-holding-heart text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">You donated $100 to "Build a School in Kenya"</h4>
+                                <p class="text-sm text-gray-500">2 days ago</p>
+                                <p class="mt-1 text-sm text-gray-600">Your contribution will help purchase school supplies for 20 children.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Item 2 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-users text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">You joined the "Environmental Activists" community</h4>
+                                <p class="text-sm text-gray-500">1 week ago</p>
+                                <p class="mt-1 text-sm text-gray-600">Connect with other members and participate in upcoming events.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Item 3 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-calendar-check text-purple-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">You registered for "Beach Cleanup Day"</h4>
+                                <p class="text-sm text-gray-500">2 weeks ago</p>
+                                <p class="mt-1 text-sm text-gray-600">Event date: June 15, 2023 at Santa Monica Beach</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="volunteer" class="tab-content">
+                    <div class="space-y-4">
+                        <!-- Volunteer Item 1 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-hands-helping text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Beach Cleanup Day</h4>
+                                <p class="text-sm text-gray-500">Completed on June 15, 2023</p>
+                                <p class="mt-1 text-sm text-gray-600">Collected 25 bags of trash from Santa Monica Beach with 50 other volunteers.</p>
+                                <p class="mt-2 text-sm font-medium text-green-600">+150 Impact Points</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Volunteer Item 2 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-chalkboard-teacher text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Tutoring at Local School</h4>
+                                <p class="text-sm text-gray-500">Ongoing - Every Wednesday</p>
+                                <p class="mt-1 text-sm text-gray-600">Helping 5th grade students with math and reading comprehension.</p>
+                                <p class="mt-2 text-sm font-medium text-green-600">+50 Impact Points per session</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="donations" class="tab-content">
+                    <div class="space-y-4">
+                        <!-- Donation Item 1 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-donate text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">$100 to "Build a School in Kenya"</h4>
+                                <p class="text-sm text-gray-500">Donated on June 10, 2023</p>
+                                <p class="mt-1 text-sm text-gray-600">Your donation will help purchase school supplies for 20 children.</p>
+                                <p class="mt-2 text-sm font-medium text-blue-600">+100 Impact Points</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Donation Item 2 -->
+                        <div class="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-donate text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">$50 to "COVID-19 Relief Fund"</h4>
+                                <p class="text-sm text-gray-500">Donated on May 5, 2023</p>
+                                <p class="mt-1 text-sm text-gray-600">Your contribution will provide vaccines to underserved communities.</p>
+                                <p class="mt-2 text-sm font-medium text-blue-600">+50 Impact Points</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="communities" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Community Item 1 -->
+                        <div class="flex items-center bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0">
+                                <img class="h-12 w-12 rounded-full" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=60" alt="Community">
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Environmental Activists</h4>
+                                <p class="text-sm text-gray-500">2,345 members</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Community Item 2 -->
+                        <div class="flex items-center bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex-shrink-0">
+                                <img class="h-12 w-12 rounded-full" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=60" alt="Community">
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Education Volunteers</h4>
+                                <p class="text-sm text-gray-500">1,876 members</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="gradient-bg p-6 text-white">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <img class="h-20 w-20 rounded-full border-4 border-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+                            <div class="ml-6">
+                                <h2 class="text-2xl font-bold">John Doe</h2>
+                                <p class="text-blue-100">Volunteer & Donor since 2021</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleModal('profileEditModal')" class="bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- About -->
+                        <div class="md:col-span-2">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">About</h3>
+                            <p class="text-gray-600 mb-4">
+                                Passionate about making a difference in the world through volunteering and donations. 
+                                Special interest in education and environmental causes. Currently working as a software 
+                                engineer but dedicating weekends to community service.
+                            </p>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">Skills</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Teaching</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Fundraising</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Event Planning</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Public Speaking</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Badges -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Badges</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="mx-auto bg-blue-100 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+                                        <i class="fas fa-star text-blue-600 text-2xl"></i>
+                                    </div>
+                                    <p class="mt-2 text-sm font-medium text-gray-900">Gold Donor</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="mx-auto bg-green-100 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+                                        <i class="fas fa-leaf text-green-600 text-2xl"></i>
+                                    </div>
+                                    <p class="mt-2 text-sm font-medium text-gray-900">Eco Warrior</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="mx-auto bg-yellow-100 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+                                        <i class="fas fa-graduation-cap text-yellow-600 text-2xl"></i>
+                                    </div>
+                                    <p class="mt-2 text-sm font-medium text-gray-900">Education Hero</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Posts -->
+                    <div class="mt-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Community Posts</h3>
+                        <div class="space-y-4">
+                            <!-- Post 1 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <img class="h-8 w-8 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                                    <div class="ml-2">
+                                        <p class="text-sm font-medium text-gray-900">John Doe</p>
+                                        <p class="text-xs text-gray-500">2 days ago in Environmental Activists</p>
+                                    </div>
+                                </div>
+                                <h4 class="text-md font-medium text-gray-900 mb-1">Successful Beach Cleanup!</h4>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    Just wanted to share some photos from our beach cleanup last weekend. We collected over 50 bags of trash! 
+                                    Thanks to everyone who participated. Let's keep our oceans clean!
+                                </p>
+                                <div class="grid grid-cols-3 gap-2 mb-2">
+                                    <img class="h-24 w-full object-cover rounded" src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=60" alt="Post">
+                                    <img class="h-24 w-full object-cover rounded" src="https://images.unsplash.com/photo-1584473457407-1d529d68e611?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=60" alt="Post">
+                                    <img class="h-24 w-full object-cover rounded" src="https://images.unsplash.com/photo-1604881991720-f8f3b0b6e9b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=60" alt="Post">
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <button class="flex items-center text-blue-600 hover:text-blue-800 mr-4">
+                                        <i class="far fa-thumbs-up mr-1"></i>
+</html>
